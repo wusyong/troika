@@ -280,8 +280,14 @@ pub const ROUND_CONSTANTS: [[Trit; COLUMNS * SLICES]; NUM_ROUNDS] = [
     ],
 ];
 
-pub const SBOX_LOOKUP: [u8; 27] = [6,  25, 17, 5,  15, 10, 4,  20, 24, 0,  1, 2,  9, 22, 26, 18, 16, 14, 3,  13, 23, 7,  11, 12, 8, 21, 19];
+pub const SBOX_LOOKUP: [u8; 27] = [
+    6, 25, 17, 5, 15, 10, 4, 20, 24, 0, 1, 2, 9, 22, 26, 18, 16, 14, 3, 13, 23, 7, 11, 12, 8, 21,
+    19,
+];
 
 pub const SHIFT_ROWS_PARAM: [usize; 3] = [0, 1, 2];
 
-pub const SHIFT_LANES_PARAM: [usize; 27] = [19, 13, 21, 10, 24, 15, 2,  9,  3, 14, 0,  6,  5, 1, 25, 22, 23, 20, 7,  17, 26, 12, 8, 18, 16, 11, 4];
+pub const SHIFT_LANES_PARAM: [usize; 27] = [
+    19, 13, 21, 10, 24, 15, 2, 9, 3, 14, 0, 6, 5, 1, 25, 22, 23, 20, 7, 17, 26, 12, 8, 18, 16, 11,
+    4,
+];

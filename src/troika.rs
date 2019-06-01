@@ -28,7 +28,6 @@ fn troika_absorb(state: &mut [Trit], rate: usize, message: &[Trit], num_rounds: 
 
     // Pad last block
     let mut last_block = vec![0u8; rate];
-    
 
     // Copy over last incomplete message block
     for _ in 0..message_length {
@@ -69,7 +68,6 @@ fn troika_squeeze(hash: &mut [Trit], rate: usize, state: &mut [Trit], num_rounds
     }
 }
 
-
 fn troika_permutation(state: &mut [Trit], num_rounds: usize) {
     assert!(num_rounds <= NUM_ROUNDS);
 
@@ -84,7 +82,8 @@ fn troika_permutation(state: &mut [Trit], num_rounds: usize) {
 
 fn sub_trytes(state: &mut [Trit]) {
     for sbox_idx in 0..NUM_SBOXES {
-        let sbox_input = 9 * state[3 * sbox_idx] + 3 * state[3 * sbox_idx + 1] + state[3 * sbox_idx + 2];
+        let sbox_input =
+            9 * state[3 * sbox_idx] + 3 * state[3 * sbox_idx + 1] + state[3 * sbox_idx + 2];
         let mut sbox_output = SBOX_LOOKUP[sbox_input as usize];
         state[3 * sbox_idx + 2] = sbox_output % 3;
         sbox_output /= 3;
@@ -101,7 +100,8 @@ fn shift_rows(state: &mut [Trit]) {
         for row in 0..ROWS {
             for col in 0..COLUMNS {
                 let old_idx = SLICESIZE * slice + COLUMNS * row + col;
-                let new_idx = SLICESIZE * slice + COLUMNS * row + (col + 3 * SHIFT_ROWS_PARAM[row]) % COLUMNS;
+                let new_idx =
+                    SLICESIZE * slice + COLUMNS * row + (col + 3 * SHIFT_ROWS_PARAM[row]) % COLUMNS;
                 new_state[new_idx] = state[old_idx];
             }
         }
@@ -123,7 +123,7 @@ fn shift_lanes(state: &mut [Trit]) {
             }
         }
     }
-    
+
     state.copy_from_slice(&new_state[..]);
 }
 
@@ -146,7 +146,8 @@ fn add_column_parity(state: &mut [Trit]) {
         for row in 0..ROWS {
             for col in 0..COLUMNS {
                 let idx = SLICESIZE * slice + COLUMNS * row + col;
-                let sum_to_add = parity[(col - 1 + 9) % 9 + COLUMNS * slice] + parity[(col + 1) % 9 + COLUMNS * ((slice + 1) % SLICES)];
+                let sum_to_add = parity[(col + 8) % 9 + COLUMNS * slice]
+                    + parity[(col + 1) % 9 + COLUMNS * ((slice + 1) % SLICES)];
                 state[idx] = (state[idx] + sum_to_add) % 3;
             }
         }
@@ -159,5 +160,34 @@ fn add_round_constant(state: &mut [Trit], round: usize) {
             let idx = SLICESIZE * slice + col;
             state[idx] = (state[idx] + ROUND_CONSTANTS[round][slice * COLUMNS + col]) % 3;
         }
+    }
+}
+
+#[cfg(test)]
+mod test_troika {
+    use super::*;
+
+    const HASH: [u8; 243] = [
+        0, 2, 2, 1, 2, 1, 0, 1, 2, 1, 1, 1, 1, 2, 2, 1, 1, 1, 0, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 2,
+        1, 1, 1, 0, 1, 0, 2, 1, 0, 0, 0, 1, 2, 0, 2, 1, 0, 0, 2, 1, 1, 1, 1, 1, 2, 0, 1, 0, 2, 1,
+        1, 2, 0, 1, 1, 1, 1, 1, 2, 2, 0, 0, 2, 2, 2, 2, 0, 0, 2, 2, 2, 1, 2, 2, 0, 2, 1, 1, 2, 1,
+        1, 1, 2, 2, 1, 1, 0, 0, 0, 2, 2, 2, 0, 2, 1, 1, 1, 1, 0, 0, 1, 0, 2, 0, 2, 0, 2, 0, 0, 0,
+        0, 1, 1, 1, 0, 2, 1, 1, 1, 0, 2, 0, 0, 1, 0, 1, 0, 2, 0, 2, 2, 0, 0, 2, 2, 0, 1, 2, 1, 0,
+        0, 1, 2, 1, 1, 0, 0, 1, 1, 0, 2, 1, 1, 0, 1, 2, 0, 0, 0, 1, 2, 2, 1, 1, 1, 0, 0, 2, 0, 1,
+        1, 2, 1, 1, 2, 1, 0, 1, 2, 2, 2, 2, 1, 2, 0, 2, 2, 1, 2, 1, 2, 1, 2, 2, 1, 1, 2, 0, 2, 1,
+        0, 1, 1, 1, 0, 2, 2, 0, 0, 2, 0, 2, 0, 1, 2, 0, 0, 2, 2, 1, 1, 2, 0, 1, 0, 0, 0, 0, 2, 0,
+        2, 2, 2,
+    ];
+
+    #[test]
+    fn test_hash() {
+        let mut trits = [0u8; 243];
+        let input = [0u8; 243];
+        troika(&mut trits, &input);
+
+        assert!(
+            trits.iter().zip(HASH.iter()).all(|(a, b)| a == b),
+            "Arrays are not equal"
+        );
     }
 }
