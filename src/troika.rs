@@ -2,6 +2,19 @@ use super::macros::*;
 use crate::Result;
 use std::fmt;
 
+/// The Troika struct is a Sponge that uses the Troika
+/// hashing algorithm.
+/// ```rust
+/// extern crate troika_rust;
+/// use troika_rust::troika::Troika;
+/// // Create an array of 243 1s
+/// let input = [1; 243];
+/// // Create an array of 243 0s
+/// let mut out = [0; 243];
+/// let mut troika = Troika::default();
+/// troika.absorb(&input);
+/// troika.squeeze(&mut out);
+/// ```
 #[derive(Clone, Copy)]
 pub struct Troika {
     num_rounds: usize,
