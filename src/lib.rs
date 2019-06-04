@@ -1,6 +1,7 @@
 extern crate failure;
 
 mod macros;
+pub mod stroika;
 pub mod troika;
 
 use std::result;

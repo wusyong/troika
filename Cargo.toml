@@ -6,3 +6,4 @@ edition = "2018"
 
 [dependencies]
 failure = "0.1"
+faster = { git = "https://github.com/wusyong/faster.git" }
