@@ -169,7 +169,7 @@ impl Stroika {
             self.simd_sbox(i + 3);
             self.simd_sbox(i + 6);
             i += 9;
-        }   
+        }
     }
 
     #[inline]
