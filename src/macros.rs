@@ -1,5 +1,4 @@
 pub type Trit = u8;
-pub type Tryte = u8;
 
 pub const NUM_ROUNDS: usize = 24;
 pub const TROIKA_RATE: usize = 243;
