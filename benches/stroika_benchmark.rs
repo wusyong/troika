@@ -14,7 +14,7 @@ fn basic_stroika() {
 }
 
 fn criterion_benchmark(c: &mut Criterion) {
-    c.bench_function("Troika with input of 243 zeros", |b| b.iter(|| basic_stroika()));
+    c.bench_function("Stroika with input of 243 zeros", |b| b.iter(|| basic_stroika()));
 }
 
 criterion_group!(benches, criterion_benchmark);
