@@ -1,4 +1,5 @@
 extern crate failure;
+extern crate faster;
 
 mod macros;
 pub mod stroika;

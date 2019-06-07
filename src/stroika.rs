@@ -1,7 +1,6 @@
 use super::macros::*;
 use crate::Result;
 use std::fmt;
-//use faster::prelude::*;
 
 #[derive(Clone, Copy, Debug)]
 pub struct Btrit {
@@ -23,6 +22,14 @@ impl Btrit {
     #[inline]
     pub fn to_trit(&self) -> Trit {
         (self.hi ^ self.lo) << 1 | self.lo
+    }
+
+    #[inline]
+    pub fn add(&mut self, t: Btrit) {
+        let mut a = Btrit::new(0, 0);
+        a.hi = (self.hi ^ t.hi) | (self.hi ^ self.lo ^ t.lo);
+        a.lo = (!self.hi & t.lo) | ((self.lo ^ t.hi) & (self.hi & !t.lo));
+        *self = a;
     }
 }
 
@@ -71,7 +78,7 @@ impl Stroika {
         let mut message_idx = 0;
         let mut trit_idx = 0;
         let mut bmessage = vec![Btrit::new(0, 0); message_length];
-        
+
         for idx in 0..message_length {
             bmessage[idx].from_trit(message[idx]);
         }
@@ -111,7 +118,7 @@ impl Stroika {
         let mut hash_length = hash.len();
         let mut hash_idx = 0;
         let mut bhash = vec![Btrit::new(0, 0); hash_length];
-        
+
         for idx in 0..hash_length {
             bhash[idx].from_trit(hash[idx]);
         }
@@ -144,8 +151,9 @@ impl Stroika {
 
         for round in 0..self.num_rounds {
             self.sub_trytes();
-            self.shift_rows();
-            self.shift_lanes();
+            //self.shift_rows();
+            //self.shift_lanes();
+            self.shift_rows_lanes();
             self.add_column_parity();
             self.add_round_constant(round);
         }
@@ -177,16 +185,40 @@ impl Stroika {
         let (a, b, c) = (self.state[i], self.state[i + 1], self.state[i + 2]);
         let (mut x, mut y, mut z) = (Btrit::new(0, 0), Btrit::new(0, 0), Btrit::new(0, 0));
 
-        x.hi = (((b.hi & c.hi)) | ((c.hi & !a.lo)) | ((a.lo ^ c.hi) & (b.hi))) & 0x1;
-        x.lo = (((a.lo ^ b.lo) & (b.hi & c.hi)) | ((c.hi ^ c.lo) & (!a.hi & !b.hi)) | ((a.lo ^ b.hi ^ b.lo ^ c.hi) & (a.hi & c.lo)) | ((a.lo ^ c.hi) & (b.lo))) & 0x1;
-	    y.hi = ((!(a.hi ^ b.lo ^ c.lo) & (!a.lo)) | ((a.hi ^ b.lo ^ c.hi ^ c.lo) & (!a.lo)) | ((b.hi ^ c.hi) & (!a.lo)) | (!(a.lo ^ c.hi) & (b.hi))) & 0x1;
-	    y.lo = (((a.hi ^ a.lo) & (!b.hi)) | ((a.hi ^ b.hi) & (!a.lo & !c.hi)) | ((a.lo ^ b.lo ^ c.lo) & (a.hi & b.hi & c.hi))) & 0x1;
-	    z.hi = (((a.hi ^ b.lo ^ c.lo) & (c.hi)) | ((a.hi ^ a.lo ^ b.lo ^ c.lo) & (c.hi)) | ((b.hi ^ c.hi) & (!a.lo))) & 0x1;
-	    z.lo = (((a.lo & c.lo)) | (!(a.hi ^ b.lo ^ c.hi) & (b.hi & !a.lo & !c.lo)) | ((c.lo & !b.hi))) & 0x1;
+        x.hi = ((b.hi & c.hi) | (c.hi & !a.lo) | ((a.lo ^ c.hi) & (b.hi))) & 0x1;
+        x.lo = (((a.lo ^ b.lo) & (b.hi & c.hi))
+            | ((c.hi ^ c.lo) & (!a.hi & !b.hi))
+            | ((a.lo ^ b.hi ^ b.lo ^ c.hi) & (a.hi & c.lo))
+            | ((a.lo ^ c.hi) & (b.lo)))
+            & 0x1;
+        y.hi = ((!(a.hi ^ b.lo ^ c.lo) & (!a.lo))
+            | ((a.hi ^ b.lo ^ c.hi ^ c.lo) & (!a.lo))
+            | ((b.hi ^ c.hi) & (!a.lo))
+            | (!(a.lo ^ c.hi) & (b.hi)))
+            & 0x1;
+        y.lo = (((a.hi ^ a.lo) & (!b.hi))
+            | ((a.hi ^ b.hi) & (!a.lo & !c.hi))
+            | ((a.lo ^ b.lo ^ c.lo) & (a.hi & b.hi & c.hi)))
+            & 0x1;
+        z.hi = (((a.hi ^ b.lo ^ c.lo) & (c.hi))
+            | ((a.hi ^ a.lo ^ b.lo ^ c.lo) & (c.hi))
+            | ((b.hi ^ c.hi) & (!a.lo)))
+            & 0x1;
+        z.lo = ((a.lo & c.lo) | (!(a.hi ^ b.lo ^ c.hi) & (b.hi & !a.lo & !c.lo)) | (c.lo & !b.hi))
+            & 0x1;
 
         self.state[i] = x;
         self.state[i + 1] = y;
         self.state[i + 2] = z;
+    }
+
+    fn shift_rows_lanes(&mut self) {
+        let mut new_state = vec![Btrit::new(0, 0); STATE_SIZE];
+        for i in 0..STATE_SIZE {
+            new_state[i] = self.state[SHIFT_ROWS_LANES[i]];
+        }
+
+        self.state = new_state;
     }
 
     fn shift_rows(&mut self) {
@@ -254,19 +286,25 @@ impl Stroika {
     }
 
     fn add_round_constant(&mut self, round: usize) {
-        let mut tmp;
+        let mut tmp = Btrit::new(0, 0);
+        //let mut tmp: Vec<Btrit> = vec![Btrit::new(0, 0); STATE_SIZE];
+
         for slice in 0..SLICES {
             for col in 0..COLUMNS {
                 let idx = SLICESIZE * slice + col;
-                tmp = self.state[idx].to_trit();
-                self.state[idx].from_trit((tmp + ROUND_CONSTANTS[round][slice * COLUMNS + col]) % 3);
+                //tmp = self.state[idx].to_trit();
+                //self.state[idx]
+                //    .from_trit((tmp + ROUND_CONSTANTS[round][slice * COLUMNS + col]) % 3);
+                tmp.hi = RCONSTANTS_HI[round][slice * COLUMNS + col];
+                tmp.lo = RCONSTANTS_LO[round][slice * COLUMNS + col];
+                self.state[idx].add(tmp);
             }
         }
     }
 }
 
 #[cfg(test)]
-mod test_troika {
+mod test_stroika {
     use super::*;
 
     const HASH: [u8; 243] = [
@@ -289,9 +327,27 @@ mod test_troika {
         stroika.absorb(&input);
         stroika.squeeze(&mut output);
 
-        assert!(
-            output.iter().zip(HASH.iter()).all(|(a, b)| a == b),
-            "Arrays are not equal"
-        );
+        println!("{:?}", output.iter());
+
+        assert!(output.iter().eq(HASH.iter()));
     }
+    /*
+    #[test]
+    fn test_macro() {
+        let mut state = [[Btrit::new(0, 0); COLUMNS * SLICES]; NUM_ROUNDS];
+
+        for n in 0..24 {
+            for i in 0..243 {
+                state[n][i].from_trit(ROUND_CONSTANTS[n][i]);
+            }
+        }
+
+        for n in 0..24 {
+            print!("[");
+            for i in 0..243 {
+                print!("{}, ", state[n][i].lo);
+            }
+            print!("], \n");
+        }
+    }*/
 }
