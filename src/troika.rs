@@ -118,8 +118,7 @@ impl Troika {
 
         for round in 0..self.num_rounds {
             self.sub_trytes();
-            self.shift_rows();
-            self.shift_lanes();
+            self.shift_rows_lanes();
             self.add_column_parity();
             self.add_round_constant(round);
         }
@@ -139,39 +138,13 @@ impl Troika {
         }
     }
 
-    fn shift_rows(&mut self) {
+    fn shift_rows_lanes(&mut self) {
         let mut new_state = [0u8; STATE_SIZE];
-
-        for slice in 0..SLICES {
-            for row in 0..ROWS {
-                for col in 0..COLUMNS {
-                    let old_idx = SLICESIZE * slice + COLUMNS * row + col;
-                    let new_idx = SLICESIZE * slice
-                        + COLUMNS * row
-                        + (col + 3 * SHIFT_ROWS_PARAM[row]) % COLUMNS;
-                    new_state[new_idx] = self.state[old_idx];
-                }
-            }
+        for i in 0..STATE_SIZE {
+            new_state[i] = self.state[SHIFT_ROWS_LANES[i]];
         }
 
-        self.state.copy_from_slice(&new_state[..]);
-    }
-
-    fn shift_lanes(&mut self) {
-        let mut new_state = [0u8; STATE_SIZE];
-
-        for slice in 0..SLICES {
-            for row in 0..ROWS {
-                for col in 0..COLUMNS {
-                    let old_idx = SLICESIZE * slice + COLUMNS * row + col;
-                    let new_slice = (slice + SHIFT_LANES_PARAM[col + COLUMNS * row]) % SLICES;
-                    let new_idx = SLICESIZE * (new_slice) + COLUMNS * row + col;
-                    new_state[new_idx] = self.state[old_idx];
-                }
-            }
-        }
-
-        self.state.copy_from_slice(&new_state[..]);
+        self.state = new_state;
     }
 
     fn add_column_parity(&mut self) {
