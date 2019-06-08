@@ -1,6 +1,7 @@
 use super::macros::*;
 use crate::Result;
 use std::fmt;
+use faster::*;
 
 #[derive(Clone, Copy, Debug)]
 pub struct Btrit {
@@ -9,8 +10,8 @@ pub struct Btrit {
 }
 
 impl Btrit {
-    pub fn new(h: u8, l: u8) -> Btrit {
-        Btrit { hi: h, lo: l }
+    pub fn new() -> Btrit {
+        Btrit { hi: 0, lo: 0 }
     }
 
     #[inline]
@@ -26,7 +27,7 @@ impl Btrit {
 
     #[inline]
     pub fn add(&mut self, t: Btrit) {
-        let mut a = Btrit::new(0, 0);
+        let mut a = Btrit::new();
         a.hi = (self.hi ^ t.hi) | (self.hi ^ self.lo ^ t.lo);
         a.lo = (!self.hi & t.lo) | ((self.lo ^ t.hi) & (self.hi & !t.lo));
         *self = a;
@@ -43,7 +44,7 @@ impl Default for Stroika {
     fn default() -> Stroika {
         Stroika {
             num_rounds: NUM_ROUNDS,
-            state: vec![Btrit::new(0, 0); STATE_SIZE],
+            state: vec![Btrit::new(); STATE_SIZE],
         }
     }
 }
@@ -70,14 +71,14 @@ impl Stroika {
     }
 
     pub fn reset(&mut self) {
-        self.state = vec![Btrit::new(0, 0); STATE_SIZE];
+        self.state = vec![Btrit::new(); STATE_SIZE];
     }
 
     pub fn absorb(&mut self, message: &[Trit]) {
         let mut message_length = message.len();
         let mut message_idx = 0;
         let mut trit_idx = 0;
-        let mut bmessage = vec![Btrit::new(0, 0); message_length];
+        let mut bmessage = vec![Btrit::new(); message_length];
 
         for idx in 0..message_length {
             bmessage[idx].from_trit(message[idx]);
@@ -94,7 +95,7 @@ impl Stroika {
         }
 
         // Pad last block
-        let mut last_block = vec![Btrit::new(0, 0); TROIKA_RATE];
+        let mut last_block = vec![Btrit::new(); TROIKA_RATE];
 
         // Copy over last incomplete message block
         for _ in 0..message_length {
@@ -117,7 +118,7 @@ impl Stroika {
     pub fn squeeze(&mut self, hash: &mut [Trit]) {
         let mut hash_length = hash.len();
         let mut hash_idx = 0;
-        let mut bhash = vec![Btrit::new(0, 0); hash_length];
+        let mut bhash = vec![Btrit::new(); hash_length];
 
         for idx in 0..hash_length {
             bhash[idx].from_trit(hash[idx]);
@@ -183,7 +184,7 @@ impl Stroika {
     #[inline]
     fn simd_sbox(&mut self, i: usize) {
         let (a, b, c) = (self.state[i], self.state[i + 1], self.state[i + 2]);
-        let (mut x, mut y, mut z) = (Btrit::new(0, 0), Btrit::new(0, 0), Btrit::new(0, 0));
+        let (mut x, mut y, mut z) = (Btrit::new(), Btrit::new(), Btrit::new());
 
         x.hi = ((b.hi & c.hi) | (c.hi & !a.lo) | ((a.lo ^ c.hi) & (b.hi))) & 0x1;
         x.lo = (((a.lo ^ b.lo) & (b.hi & c.hi))
@@ -213,7 +214,7 @@ impl Stroika {
     }
 
     fn shift_rows_lanes(&mut self) {
-        let mut new_state = vec![Btrit::new(0, 0); STATE_SIZE];
+        let mut new_state = vec![Btrit::new(); STATE_SIZE];
         for i in 0..STATE_SIZE {
             new_state[i] = self.state[SHIFT_ROWS_LANES[i]];
         }
@@ -222,7 +223,7 @@ impl Stroika {
     }
 
     fn shift_rows(&mut self) {
-        let mut new_state = vec![Btrit::new(0, 0); STATE_SIZE];
+        let mut new_state = vec![Btrit::new(); STATE_SIZE];
 
         for slice in 0..SLICES {
             for row in 0..ROWS {
@@ -240,7 +241,7 @@ impl Stroika {
     }
 
     fn shift_lanes(&mut self) {
-        let mut new_state = vec![Btrit::new(0, 0); STATE_SIZE];
+        let mut new_state = vec![Btrit::new(); STATE_SIZE];
 
         for slice in 0..SLICES {
             for row in 0..ROWS {
@@ -286,8 +287,8 @@ impl Stroika {
     }
 
     fn add_round_constant(&mut self, round: usize) {
-        let mut tmp = Btrit::new(0, 0);
-        //let mut tmp: Vec<Btrit> = vec![Btrit::new(0, 0); STATE_SIZE];
+        let mut tmp = Btrit::new();
+        //let mut tmp: Vec<Btrit> = vec![Btrit::new(); STATE_SIZE];
 
         for slice in 0..SLICES {
             for col in 0..COLUMNS {
@@ -334,7 +335,7 @@ mod test_stroika {
     /*
     #[test]
     fn test_macro() {
-        let mut state = [[Btrit::new(0, 0); COLUMNS * SLICES]; NUM_ROUNDS];
+        let mut state = [[Btrit::new(); COLUMNS * SLICES]; NUM_ROUNDS];
 
         for n in 0..24 {
             for i in 0..243 {
