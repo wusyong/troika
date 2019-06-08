@@ -1,8 +1,6 @@
 extern crate failure;
-extern crate faster;
 
 mod macros;
-pub mod stroika;
 pub mod troika;
 
 use std::result;

@@ -6,15 +6,10 @@ edition = "2018"
 
 [dependencies]
 failure = "0.1"
-faster = { git = "https://github.com/wusyong/faster.git" }
 
 [dev-dependencies]
 criterion = "0.2"
 
 [[bench]]
 name = "troika_benchmark"
-harness = false
-
-[[bench]]
-name = "stroika_benchmark"
 harness = false

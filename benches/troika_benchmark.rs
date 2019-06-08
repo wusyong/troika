@@ -6,7 +6,7 @@ use troika_rust::troika::Troika;
 
 fn basic_troika() {
     let mut troika = Troika::default();
-    let input = [0u8; 243];
+    let input = [0u8; 242];
     let mut output = [0u8; 243];
 
     troika.absorb(&input);
