@@ -299,7 +299,7 @@ impl Ftroika {
     }
     //#[inline]
     fn shift_rows(&mut self) {
-        const shifts: [u8;27] = [0,1,2,3,4,5,6,7,8,   12,13,14,15,16,17,9,10,11,   24,25,26,18,19,20,21,22,23];
+        const shifts: [u8;27] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 13, 14, 15, 16, 17, 9, 10, 11, 24, 25, 26, 18, 19, 20, 21, 22, 23];
         let mut new_state = [T27::zero(); SLICESIZE];
         for i in 0..SLICESIZE {
             new_state[shifts[i] as usize] = self.state[i];
@@ -308,7 +308,7 @@ impl Ftroika {
     }
     //#[inline]
     fn shift_lanes(&mut self) {
-        const shifts: [u8;27] = [19,13,21,10,24,15,2,9,3,   14,0,6,5,1,25,22,23,20,   7,17,26,12,8,18,16,11,4];
+        const shifts: [u8;27] = [19, 13, 21, 10, 24, 15, 2, 9, 3, 14, 0, 6, 5, 1, 25, 22, 23, 20, 7, 17, 26, 12, 8, 18, 16, 11, 4];
         let mut new_state = [T27::zero(); SLICESIZE];
         for i in 0..SLICESIZE {
             new_state[i as usize] = self.state[i].roll(shifts[i] as usize);
