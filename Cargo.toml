@@ -1,11 +1,12 @@
 [package]
 name = "troika_rust"
 version = "0.1.0"
-authors = ["Yu Wei Wu <wusyong9104@gmail.com>"]
+authors = ["Yu Wei Wu <wusyong9104@gmail.com>", "c-mnd"]
 edition = "2018"
 
 [dependencies]
 failure = "0.1"
+ict = "0.1.3"
 
 [dev-dependencies]
 criterion = "0.2"
@@ -13,3 +14,10 @@ criterion = "0.2"
 [[bench]]
 name = "troika_benchmark"
 harness = false
+
+[profile.dev]
+opt-level = 3
+#debug = false
+
+[profile.release]
+opt-level = 3
