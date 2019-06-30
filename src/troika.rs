@@ -6,9 +6,11 @@
  * "LICENSE" at the root of this distribution.
  */
 
-use super::macros::{Trit, COLUMNS, NUM_ROUNDS, NUM_SBOXES, PADDING, ROUND_CONSTANTS, ROWS, SBOX_LOOKUP, SHIFT_ROWS_LANES, SLICES, SLICESIZE, STATE_SIZE, TROIKA_RATE};
+use super::macros::{
+    Trit, COLUMNS, NUM_ROUNDS, NUM_SBOXES, PADDING, ROUND_CONSTANTS, ROWS, SBOX_LOOKUP,
+    SHIFT_ROWS_LANES, SLICES, SLICESIZE, STATE_SIZE, TROIKA_RATE,
+};
 use crate::Result;
-use alloc::vec;
 use core::fmt;
 
 /// The Troika struct is a Sponge that uses the Troika
@@ -45,7 +47,7 @@ impl fmt::Debug for Troika {
             f,
             "Troika: [rounds: [{}], state: {:?}",
             self.num_rounds,
-            self.state.to_vec(),
+            &self.state[..],
         )
     }
 }
@@ -81,7 +83,7 @@ impl Troika {
         }
 
         // Pad last block
-        let mut last_block = vec![0u8; TROIKA_RATE];
+        let mut last_block = [0u8; TROIKA_RATE];
 
         // Copy over last incomplete message block
         for _ in 0..message_length {

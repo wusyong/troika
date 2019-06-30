@@ -1,8 +1,11 @@
 [package]
 name = "troika-rust"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Yu Wei Wu <wusyong9104@gmail.com>", "c-mnd"]
 license = "MIT"
+keywords = ["iota"]
+repository = "https://github.com/wusyong/troika_rust"
+homepage = "https://github.com/wusyong/troika_rust"
 description = "Troika hash reference in rust"
 edition = "2018"
 

@@ -6,15 +6,14 @@
  * "LICENSE" at the root of this distribution.
  */
 
-extern crate alloc;
 extern crate failure;
 
-pub use self::troika::*;
 pub use self::ftroika::*;
+pub use self::troika::*;
 
+pub mod ftroika;
 mod macros;
 pub mod troika;
-pub mod ftroika;
 
 use core::result;
 
