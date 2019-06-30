@@ -15,7 +15,7 @@ use core::fmt;
 /// hashing algorithm.
 /// ```rust
 /// extern crate troika_rust;
-/// use troika_rust::troika::Troika;
+/// use troika_rust::Troika;
 /// // Create an array of 243 1s
 /// let input = [1; 243];
 /// // Create an array of 243 0s

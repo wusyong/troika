@@ -26,20 +26,6 @@ use super::macros::{Trit, COLUMNS, FROUND_CONSTANTS, NUM_ROUNDS, ROWS, SLICES, S
 use crate::Result;
 use core::fmt;
 
-/// The Ftroika struct is a Sponge that uses the Troika
-/// hashing algorithm.
-/// ```rust
-/// extern crate troika_rust;
-/// use troika_rust::ftroika::Ftroika;
-/// // Create an array of 243 1s
-/// let input = [1; 243];
-/// // Create an array of 243 0s
-/// let mut out = [0; 243];
-/// let mut ftroika = Ftroika::default();
-/// ftroika.absorb(&input);
-/// ftroika.finalize();
-/// ftroika.squeeze(&mut out);
-/// ```
 #[derive(Clone, Copy)]
 struct T27 {
     pub p: u32,
@@ -129,6 +115,20 @@ impl T27 {
     }
 }
 
+/// The Ftroika struct is a Sponge that uses the Troika
+/// hashing algorithm.
+/// ```rust
+/// extern crate troika_rust;
+/// use troika_rust::Ftroika;
+/// // Create an array of 243 1s
+/// let input = [1; 243];
+/// // Create an array of 243 0s
+/// let mut out = [0; 243];
+/// let mut ftroika = Ftroika::default();
+/// ftroika.absorb(&input);
+/// ftroika.finalize();
+/// ftroika.squeeze(&mut out);
+/// ```
 #[derive(Clone, Copy)]
 pub struct Ftroika {
     num_rounds: usize,

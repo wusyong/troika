@@ -1,8 +1,13 @@
 [package]
-name = "troika_rust"
+name = "troika-rust"
 version = "0.1.0"
 authors = ["Yu Wei Wu <wusyong9104@gmail.com>", "c-mnd"]
+license = "MIT"
+description = "Troika hash reference in rust"
 edition = "2018"
+
+[lib]
+name = "troika_rust"
 
 [dependencies]
 failure = "0.1"

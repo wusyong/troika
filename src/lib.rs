@@ -9,6 +9,9 @@
 extern crate alloc;
 extern crate failure;
 
+pub use self::troika::*;
+pub use self::ftroika::*;
+
 mod macros;
 pub mod troika;
 pub mod ftroika;
