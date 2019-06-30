@@ -6,9 +6,10 @@
  * "LICENSE" at the root of this distribution.
  */
 
-use super::macros::*;
+use super::macros::{Trit, COLUMNS, NUM_ROUNDS, NUM_SBOXES, PADDING, ROUND_CONSTANTS, ROWS, SBOX_LOOKUP, SHIFT_ROWS_LANES, SLICES, SLICESIZE, STATE_SIZE, TROIKA_RATE};
 use crate::Result;
-use std::fmt;
+use alloc::vec;
+use core::fmt;
 
 /// The Troika struct is a Sponge that uses the Troika
 /// hashing algorithm.

@@ -22,9 +22,9 @@
  * SOFTWARE.
  */
 
-use super::macros::*;
+use super::macros::{Trit, COLUMNS, FROUND_CONSTANTS, NUM_ROUNDS, ROWS, SLICES, SLICESIZE, TROIKA_RATE};
 use crate::Result;
-use std::fmt;
+use core::fmt;
 
 /// The Ftroika struct is a Sponge that uses the Troika
 /// hashing algorithm.

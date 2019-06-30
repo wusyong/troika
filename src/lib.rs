@@ -6,12 +6,13 @@
  * "LICENSE" at the root of this distribution.
  */
 
+extern crate alloc;
 extern crate failure;
 
 mod macros;
 pub mod troika;
 pub mod ftroika;
 
-use std::result;
+use core::result;
 
 pub type Result<T> = result::Result<T, failure::Error>;
