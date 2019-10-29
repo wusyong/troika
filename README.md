@@ -1,4 +1,4 @@
-# troika_rust
+# troika
 Rust implementation for Troika hash and ftroika
 
 ```

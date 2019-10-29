@@ -91,8 +91,7 @@ impl T27 {
 /// The Ftroika struct is a Sponge that uses the Troika
 /// hashing algorithm.
 /// ```rust
-/// extern crate troika_rust;
-/// use troika_rust::Ftroika;
+/// use troika::Ftroika;
 /// // Create an array of 243 1s
 /// let input = [1; 243];
 /// // Create an array of 243 0s
