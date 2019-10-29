@@ -32,7 +32,6 @@ fn basic_ftroika() {
     }
 
     ftroika.absorb(&input);
-    ftroika.finalize();
     ftroika.squeeze(&mut output);
 }
 

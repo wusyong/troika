@@ -98,7 +98,6 @@ impl T27 {
 /// let mut out = [0; 243];
 /// let mut ftroika = Ftroika::default();
 /// ftroika.absorb(&input);
-/// ftroika.finalize();
 /// ftroika.squeeze(&mut out);
 /// ```
 #[derive(Clone, Copy)]
@@ -171,7 +170,7 @@ impl Ftroika {
         }
     }
 
-    pub fn absorb(&mut self, trits: &[Trit]) {
+    pub fn absorb_sequence(&mut self, trits: &[Trit]) {
         let mut length = trits.len();
         let mut space;
         let mut trit_idx = 0;
@@ -200,9 +199,11 @@ impl Ftroika {
             }
         }
     }
-    pub fn finalize(&mut self) {
+
+    pub fn absorb(&mut self, trits: &[Trit]) {
+        self.absorb_sequence(trits);
         let pad: [Trit; 1] = [1];
-        self.absorb(&pad);
+        self.absorb_sequence(&pad);
         if self.idx != 0 {
             self.permutation();
             self.reset_counters();
@@ -345,7 +346,6 @@ mod test_ftroika {
         let mut output = [0u8; 243];
         let input = [0u8; 243];
         ftroika.absorb(&input);
-        ftroika.finalize();
         ftroika.squeeze(&mut output);
 
         assert!(

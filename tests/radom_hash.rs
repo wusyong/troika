@@ -17,7 +17,6 @@ fn random_hash() {
         }
 
         ftroika.absorb(&input);
-        ftroika.finalize();
         ftroika.squeeze(&mut foutput);
         ftroika.reset();
 
