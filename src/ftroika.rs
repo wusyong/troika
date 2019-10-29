@@ -196,9 +196,7 @@ impl Ftroika {
             length -= space;
             if self.idx == TROIKA_RATE {
                 self.permutation();
-                self.idx = 0;
-                self.rowcol = 0;
-                self.slice = 0;
+                self.reset_counters();
             }
         }
     }
