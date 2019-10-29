@@ -3,10 +3,15 @@ extern crate failure;
 pub use self::ftroika::*;
 pub use self::troika::*;
 
-pub mod ftroika;
 mod constants;
+pub mod ftroika;
 pub mod troika;
 
-use core::result;
+#[cfg(feature = "ftroika")]
+pub use ftroika::Ftroika as Troika;
 
+#[cfg(feature = "origin")]
+pub use troika::Troika;
+
+use core::result;
 pub type Result<T> = result::Result<T, failure::Error>;

@@ -28,3 +28,9 @@ opt-level = 3
 
 [profile.release]
 opt-level = 3
+
+[features]
+default = ["ftroika"]
+
+ftroika = []
+origin = []
