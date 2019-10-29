@@ -4,7 +4,7 @@ pub use self::ftroika::*;
 pub use self::troika::*;
 
 pub mod ftroika;
-mod macros;
+mod constants;
 pub mod troika;
 
 use core::result;

@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use super::macros::{
+use super::constants::{
     Trit, COLUMNS, FROUND_CONSTANTS, NUM_ROUNDS, ROWS, SLICES, SLICESIZE, TROIKA_RATE,
 };
 use crate::Result;
