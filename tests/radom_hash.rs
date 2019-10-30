@@ -1,5 +1,6 @@
 use troika::ftroika::*;
 use troika::troika::*;
+use troika::Sponge;
 use rand::{thread_rng, Rng};
 
 #[test]

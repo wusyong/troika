@@ -2,21 +2,11 @@ use super::constants::{
     Trit, COLUMNS, NUM_ROUNDS, NUM_SBOXES, PADDING, ROUND_CONSTANTS, ROWS, SBOX_LOOKUP,
     SHIFT_ROWS_LANES, SLICES, SLICESIZE, STATE_SIZE, TROIKA_RATE,
 };
-use crate::Result;
+use crate::{Result, Sponge};
 use core::fmt;
 
 /// The Troika struct is a Sponge that uses the Troika
 /// hashing algorithm.
-/// ```rust
-/// use troika::Troika;
-/// // Create an array of 243 1s
-/// let input = [1; 243];
-/// // Create an array of 243 0s
-/// let mut out = [0; 243];
-/// let mut troika = Troika::default();
-/// troika.absorb(&input);
-/// troika.squeeze(&mut out);
-/// ```
 #[derive(Clone, Copy)]
 pub struct Troika {
     num_rounds: usize,
@@ -43,22 +33,8 @@ impl fmt::Debug for Troika {
     }
 }
 
-impl Troika {
-    pub fn new(num_rounds: usize) -> Result<Troika> {
-        let mut troika = Troika::default();
-        troika.num_rounds = num_rounds;
-        Ok(troika)
-    }
-
-    pub fn state(&self) -> &[Trit] {
-        &self.state
-    }
-
-    pub fn reset(&mut self) {
-        self.state = [0; STATE_SIZE];
-    }
-
-    pub fn absorb(&mut self, message: &[Trit]) {
+impl Sponge for Troika {
+    fn absorb(&mut self, message: &[Trit]) {
         let mut message_length = message.len();
         let mut message_idx = 0;
         let mut trit_idx = 0;
@@ -92,7 +68,7 @@ impl Troika {
         }
     }
 
-    pub fn squeeze(&mut self, hash: &mut [Trit]) {
+    fn squeeze(&mut self, hash: &mut [Trit]) {
         let mut hash_length = hash.len();
         let mut hash_idx = 0;
 
@@ -113,6 +89,22 @@ impl Troika {
                 hash[trit_idx] = self.state[trit_idx];
             }
         }
+    }
+
+    fn reset(&mut self) {
+        self.state = [0; STATE_SIZE];
+    }
+}
+
+impl Troika {
+    pub fn new(num_rounds: usize) -> Result<Troika> {
+        let mut troika = Troika::default();
+        troika.num_rounds = num_rounds;
+        Ok(troika)
+    }
+
+    pub fn state(&self) -> &[Trit] {
+        &self.state
     }
 
     pub fn permutation(&mut self) {

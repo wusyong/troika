@@ -3,7 +3,7 @@
 use super::constants::{
     Trit, COLUMNS, FROUND_CONSTANTS, NUM_ROUNDS, ROWS, SLICES, SLICESIZE, TROIKA_RATE,
 };
-use crate::Result;
+use crate::{Result, Sponge};
 use core::fmt;
 
 #[derive(Clone, Copy)]
@@ -90,16 +90,6 @@ impl T27 {
 
 /// The Ftroika struct is a Sponge that uses the Troika
 /// hashing algorithm.
-/// ```rust
-/// use troika::Ftroika;
-/// // Create an array of 243 1s
-/// let input = [1; 243];
-/// // Create an array of 243 0s
-/// let mut out = [0; 243];
-/// let mut ftroika = Ftroika::default();
-/// ftroika.absorb(&input);
-/// ftroika.squeeze(&mut out);
-/// ```
 #[derive(Clone, Copy)]
 pub struct Ftroika {
     num_rounds: usize,
@@ -131,6 +121,51 @@ impl fmt::Debug for Ftroika {
     }
 }
 
+impl Sponge for Ftroika {
+    fn absorb(&mut self, trits: &[Trit]) {
+        self.absorb_sequence(trits);
+        let pad: [Trit; 1] = [1];
+        self.absorb_sequence(&pad);
+        if self.idx != 0 {
+            self.permutation();
+            self.reset_counters();
+        }
+    }
+
+    fn squeeze(&mut self, trits: &mut [Trit]) {
+        let mut length = trits.len();
+        let mut space;
+        let mut trit_idx = 0;
+        while length > 0 {
+            space = TROIKA_RATE - self.idx;
+            if length < space {
+                space = length;
+            }
+            for _ in 0..space {
+                trits[trit_idx] = self.get();
+                self.idx += 1;
+                self.rowcol += 1;
+                trit_idx += 1;
+                if self.rowcol == SLICESIZE {
+                    self.rowcol = 0;
+                    self.slice += 1;
+                }
+            }
+            //trit_idx += space;
+            length -= space;
+            if self.idx == TROIKA_RATE {
+                self.permutation();
+                self.reset_counters();
+            }
+        }
+    }
+
+    fn reset(&mut self) {
+        self.state = [T27::zero(); SLICESIZE];
+        self.reset_counters();
+    }
+}
+
 impl Ftroika {
 
     pub fn new(num_rounds: usize) -> Result<Ftroika> {
@@ -141,11 +176,6 @@ impl Ftroika {
 
     fn state(&self) -> &[T27] {
         &self.state
-    }
-
-    pub fn reset(&mut self) {
-        self.state = [T27::zero(); SLICESIZE];
-        self.reset_counters();
     }
 
     fn reset_counters(&mut self) {
@@ -170,7 +200,7 @@ impl Ftroika {
         }
     }
 
-    pub fn absorb_sequence(&mut self, trits: &[Trit]) {
+    fn absorb_sequence(&mut self, trits: &[Trit]) {
         let mut length = trits.len();
         let mut space;
         let mut trit_idx = 0;
@@ -199,45 +229,6 @@ impl Ftroika {
             }
         }
     }
-
-    pub fn absorb(&mut self, trits: &[Trit]) {
-        self.absorb_sequence(trits);
-        let pad: [Trit; 1] = [1];
-        self.absorb_sequence(&pad);
-        if self.idx != 0 {
-            self.permutation();
-            self.reset_counters();
-        }
-    }
-
-    pub fn squeeze(&mut self, trits: &mut [Trit]) {
-        let mut length = trits.len();
-        let mut space;
-        let mut trit_idx = 0;
-        while length > 0 {
-            space = TROIKA_RATE - self.idx;
-            if length < space {
-                space = length;
-            }
-            for _ in 0..space {
-                trits[trit_idx] = self.get();
-                self.idx += 1;
-                self.rowcol += 1;
-                trit_idx += 1;
-                if self.rowcol == SLICESIZE {
-                    self.rowcol = 0;
-                    self.slice += 1;
-                }
-            }
-            //trit_idx += space;
-            length -= space;
-            if self.idx == TROIKA_RATE {
-                self.permutation();
-                self.reset_counters();
-            }
-        }
-    }
-
 
     fn permutation(&mut self) {
         assert!(self.num_rounds <= NUM_ROUNDS);
