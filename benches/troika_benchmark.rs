@@ -4,8 +4,9 @@ extern crate rand;
 use rand::{thread_rng, Rng};
 
 use criterion::Criterion;
-use troika::Ftroika;
-use troika::Troika;
+use troika::ftroika::Ftroika;
+use troika::troika::Troika;
+use troika::Sponge;
 
 fn basic_troika() {
     let mut troika = Troika::default();
